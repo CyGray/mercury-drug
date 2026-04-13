@@ -6,7 +6,7 @@ from pathlib import Path
 import pandas as pd
 
 from analytics_engine import summarize_sales
-from charts import plot_bar_sales_per_product, plot_key_items_pie
+from charts import plot_bar_sales_per_product, plot_key_items_sales_share_pie
 from data_validation import load_and_validate_csv
 
 
@@ -68,7 +68,9 @@ def main() -> int:
     pie_path = output_dir / "pie_key_items_sales_share.png"
 
     plot_bar_sales_per_product(df, output_path=str(bar_path), show=not args.no_show)
-    plot_key_items_pie(summary["key_items"], output_path=str(pie_path), show=not args.no_show)
+    plot_key_items_sales_share_pie(
+        summary["key_items"], output_path=str(pie_path), show=not args.no_show
+    )
 
     print("Charts generated:")
     print(f"- {bar_path}")

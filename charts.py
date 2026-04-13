@@ -39,7 +39,7 @@ def plot_bar_sales_per_product(
         plt.close()
 
 
-def plot_key_items_pie(
+def plot_key_items_sales_share_pie(
     key_items: Dict[str, Dict[str, object]], output_path: str | None = None, show: bool = True
 ) -> None:
     """Build a pie chart for highest, lowest, and median sales items."""
