@@ -16,10 +16,14 @@ htmlcov/
 # Environment and local settings
 .env
 .env.*
+.mplconfig/
 
 # IDE/editor folders
 .vscode/
 .idea/
+
+# Generated outputs
+output/
 
 # OS files
 .DS_Store

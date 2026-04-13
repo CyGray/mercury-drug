@@ -1,50 +1,67 @@
+from __future__ import annotations
+
+import os
+from pathlib import Path
+from typing import Dict
+
 import pandas as pd
+
+_MPL_DIR = Path(".mplconfig")
+_MPL_DIR.mkdir(exist_ok=True)
+os.environ.setdefault("MPLCONFIGDIR", str(_MPL_DIR.resolve()))
+
 import matplotlib.pyplot as plt
-import seaborn as sns
 
-def plot_bar_sales_per_product(df):
-    """Builds a bar chart for total sales per product (Description)."""
-    df['TotalSales'] = df['UnitPrice'] * df['QuantitySold']
 
-    summary = df.groupby('Description')['TotalSales'].sum().reset_index()
-    summary = summary.sort_values('TotalSales', ascending=False)
+def plot_bar_sales_per_product(
+    df: pd.DataFrame, output_path: str | None = None, show: bool = True
+) -> None:
+    """Build a bar chart of total sales per product."""
+    working = df.copy()
+    if "TotalSales" not in working.columns:
+        working["TotalSales"] = working["UnitPrice"] * working["QuantitySold"]
+
+    summary = working.groupby("Description")["TotalSales"].sum().sort_values(ascending=False)
 
     plt.figure(figsize=(12, 6))
-    sns.barplot(data=summary, x='Description', y='TotalSales', palette='magma')
-    
-    plt.title('Total Revenue per Product')
-    plt.xlabel('Product Name')
-    plt.ylabel('Total Sales (PHP)')
-    plt.xticks(rotation=45, ha='right')
+    plt.bar(summary.index, summary.values, color="#2a9d8f")
+    plt.title("Total Sales per Product")
+    plt.xlabel("Product Name")
+    plt.ylabel("Total Sales (PHP)")
+    plt.xticks(rotation=45, ha="right")
     plt.tight_layout()
-    plt.show()
 
-def plot_sales_share_pie(df):
-    """Builds a pie chart showing which products contribute most to total revenue."""
-    df['TotalSales'] = df['UnitPrice'] * df['QuantitySold']
-    summary = df.groupby('Description')['TotalSales'].sum()
-    
-    plt.figure(figsize=(10, 10))
-    summary.plot.pie(
-        autopct='%1.1f%%', 
-        startangle=140, 
-        cmap='Spectral',
-        pctdistance=0.85
-    )
-    
-    plt.title('Sales Share by Product Revenue')
-    plt.ylabel('')
+    if output_path:
+        plt.savefig(output_path, dpi=150)
+    if show:
+        plt.show()
+    else:
+        plt.close()
+
+
+def plot_key_items_pie(
+    key_items: Dict[str, Dict[str, object]], output_path: str | None = None, show: bool = True
+) -> None:
+    """Build a pie chart for highest, lowest, and median sales items."""
+    labels = [
+        f"Highest: {key_items['highest']['Description']}",
+        f"Lowest: {key_items['lowest']['Description']}",
+        f"Median: {key_items['median']['Description']}",
+    ]
+    values = [
+        float(key_items["highest"]["TotalSales"]),
+        float(key_items["lowest"]["TotalSales"]),
+        float(key_items["median"]["TotalSales"]),
+    ]
+
+    plt.figure(figsize=(9, 9))
+    plt.pie(values, labels=labels, autopct="%1.1f%%", startangle=140)
+    plt.title("Sales Share: Highest vs Lowest vs Median Item")
     plt.tight_layout()
-    plt.show()
 
-if __name__ == "__main__":
-    csv_path = 'data/MercuryDrugSales.csv'
-    
-    try:
-        data = pd.read_csv(csv_path)
-        print(f"Successfully loaded {csv_path}")
-        plot_bar_sales_per_product(data)
-        plot_sales_share_pie(data)
-        
-    except Exception as e:
-        print(f"Error: {e}")
+    if output_path:
+        plt.savefig(output_path, dpi=150)
+    if show:
+        plt.show()
+    else:
+        plt.close()
